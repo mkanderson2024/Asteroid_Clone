@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "AsteroidSpawner.generated.h"
 
+class AAsteroid;
+
 UCLASS()
 class ASTEROID_CLONE_API AAsteroidSpawner : public AActor
 {
@@ -19,8 +21,34 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	void StartSpawning();
+	void MaintainAsteroidCount();
+	AActor* SpawnAsteroid_Internal();
+	FVector GetSpawnPoint() const;
+	bool IsVisibleToAnyPlayer(const FVector& Position) const;
+
+	FTimerHandle SpawnTimerHandle;
+
+	UPROPERTY()
+	TArray<TWeakObjectPtr<AActor>> ActiveAsteroids;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(EditAnywhere, Category="Spawning")
+	TSubclassOf<AAsteroid> AsteroidClass;
+
+	UPROPERTY(EditAnywhere, Category="Spawning")
+	float SpawnInterval = 2.0f;
+
+	UPROPERTY(EditAnywhere, Category="Spawning")
+	float SpawnDistance = 2500.f;
+
+	UPROPERTY(EditAnywhere, Category="Spawning")
+	int32 MaxAsteroids = 10;
+
+	UPROPERTY(EditAnywhere, Category="Spawning")
+	int32 MaxAttempts = 10;
 
 };
