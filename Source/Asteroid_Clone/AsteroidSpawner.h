@@ -4,19 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Engine/StaticMesh.h"
-
-#include "Asteroid.generated.h" // Must always be last
-
+#include "AsteroidSpawner.generated.h"
 
 UCLASS()
-class ASTEROID_CLONE_API AAsteroid : public AActor
+class ASTEROID_CLONE_API AAsteroidSpawner : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AAsteroid();
+	AAsteroidSpawner();
 
 protected:
 	// Called when the game starts or when spawned
@@ -25,16 +22,5 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	// Mesh component
-	UPROPERTY(VisibleAnywhere)
-	UStaticMeshComponent* Mesh;
-
-	UPROPERTY(EditDefaultsOnly, Category="Asteroid")
-	UStaticMesh* AsteroidMesh;
-
-	// Movement variables
-	FVector MoveDirection;
-	float Speed = 300.f;
 
 };
