@@ -44,4 +44,13 @@ public:
 	// Rotation Variables
 	FVector RotationAxis;
 	float RotationSpeed = 60.f;
+
+	UFUNCTION()
+	void OnHit(
+		UPrimitiveComponent* HitComp,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		FVector NormalImpulse,
+		const FHitResult& Hit
+	);
 };

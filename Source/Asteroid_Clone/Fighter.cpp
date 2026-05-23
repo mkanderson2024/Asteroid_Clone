@@ -3,6 +3,11 @@
 
 #include "Fighter.h"
 
+// Game Mode
+#include "AsteroidsGameMode.h"
+#include "Engine/World.h"
+#include "GameFramework/Controller.h"
+
 // Components
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -29,6 +34,8 @@
 // Sets default values
 AFighter::AFighter()
 {
+	// Tags
+	Tags.Add("PlayerShip");
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -334,4 +341,29 @@ void AFighter::Turn(const FInputActionValue& Value)
 void AFighter::Shoot(const FInputActionValue& Value)
 {
     UE_LOG(LogTemp, Warning, TEXT("Pew"));
+}
+
+void AFighter::Die()
+{
+    AController* PawnController = GetController();
+
+    if (PawnController)
+    {
+        AAsteroidsGameMode* GM = GetWorld()->GetAuthGameMode<AAsteroidsGameMode>();
+        if (GM)
+        {
+            GM->RespawnPlayer(PawnController);
+        }
+    }
+
+	if (ThrusterVFX->IsActive())
+		{
+			ThrusterVFX->Deactivate();
+		}
+
+	ThrusterAudio->FadeOut(0.2f, 0.0f);
+
+    SetActorHiddenInGame(true);
+    SetActorEnableCollision(false);
+    DisableInput(nullptr);
 }

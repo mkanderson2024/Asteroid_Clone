@@ -4,6 +4,7 @@
 #include "Asteroid.h"
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Fighter.h"
 
 class UStaticMesh;
 class UStaticMeshComponent;
@@ -14,10 +15,23 @@ AAsteroid::AAsteroid()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	// Mesh Settings
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	RootComponent = Mesh;
 
 	Mesh->SetSimulatePhysics(false);
+
+	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	Mesh->SetCollisionObjectType(ECC_WorldDynamic);
+
+	Mesh->SetCollisionResponseToAllChannels(ECR_Block);
+	Mesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+
+	Mesh->SetNotifyRigidBodyCollision(true);
+	Mesh->SetCollisionProfileName(TEXT("BlockAllDynamic"));
+
+	// Hit Event
+	Mesh->OnComponentHit.AddDynamic(this, &AAsteroid::OnHit);
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> MeshAsset(
 		TEXT("/Game/AsteroidMesh/Asteroid.Asteroid")
@@ -73,8 +87,8 @@ void AAsteroid::Tick(float DeltaTime)
 	// Slgith attaction to player ship
 	Velocity += MoveDirection * 10.f * DeltaTime;
 
-	// Moves asteroid
-	SetActorLocation(GetActorLocation() + Velocity * DeltaTime);
+	// Moves asteroid with sweeping detection for collision
+	SetActorLocation(GetActorLocation() + Velocity * DeltaTime, true);
 
 	// Tumbling effect
 	AddActorWorldRotation(
@@ -82,3 +96,29 @@ void AAsteroid::Tick(float DeltaTime)
 	);
 }
 
+void AAsteroid::OnHit(
+	UPrimitiveComponent* HitComp,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	FVector NormalImpulse,
+	const FHitResult& Hit)
+{
+	if (!OtherActor)
+	{
+		return;
+	}
+
+	// Player Collision with asteroid results in player death
+	if (OtherActor->ActorHasTag("PlayerShip"))
+	{
+		AFighter* Fighter = Cast<AFighter>(OtherActor);
+		
+		if (Fighter)
+		{
+			Fighter->Die();
+		}
+	}
+
+	// Asteroid gets destroyed
+	Destroy();
+}

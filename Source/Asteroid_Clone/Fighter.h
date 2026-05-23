@@ -37,6 +37,9 @@ public:
 	void Turn(const FInputActionValue& Value);
 	void Shoot(const FInputActionValue& Value);
 
+	// Death and Resapwn
+	void Die();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
