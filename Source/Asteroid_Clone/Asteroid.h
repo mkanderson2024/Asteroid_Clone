@@ -23,4 +23,15 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	// Mesh component
+	UPROPERTY(VisibleAnywhere)
+	UStaticMeshComponent* Mesh;
+
+	UPPROPERTY(EditDefaultsOnly, Category="Asteroid")
+	UStaticMesh* AsteroidMesh;
+
+	// Movement variables
+	FVector MoveDirection;
+	float speed = 300.f;
+
 };
