@@ -2,12 +2,11 @@
 
 
 #include "Asteroid.h"
-#include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
 
 class UStaticMesh;
-class UStaticMeshComponenet;
+class UStaticMeshComponent;
 
 // Sets default values
 AAsteroid::AAsteroid()
@@ -29,6 +28,9 @@ AAsteroid::AAsteroid()
 		AsteroidMesh = MeshAsset.Object;
 		Mesh->SetStaticMesh(AsteroidMesh);
 	}
+
+	RotationAxis = FVector::ZeroVector;
+	RotationSpeed = 60.f;
 }
 
 // Called when the game starts or when spawned
@@ -39,18 +41,22 @@ void AAsteroid::BeginPlay()
 	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 	if (!PlayerPawn) return;
 
-	FVector PlayerLocation = PlayerPawn->GetActorLocation();
-
 	// Sets direction toward player with a little randomness
-	MoveDirection = (PlayerLocation - GetActorLocation()).GetSafeNormal();
+	FVector MoveDirection = (PlayerPawn->GetActorLocation() - GetActorLocation()).GetSafeNormal();
 
-	MoveDirection += FVector(
+	FVector RandomOffset = FVector(
 		FMath::RandRange(-0.4f, 0.4f),
 		FMath::RandRange(-0.4f, 0.4f),
 		0
 	);
 
-	MoveDirection.Normalize();
+	FVector FinalDirection = (MoveDirection + RandomOffset).GetSafeNormal();
+
+	Velocity = FinalDirection * Speed;
+
+	// Rotation with a little randomness
+	RotationAxis = FMath::VRand().GetSafeNormal();
+	RotationSpeed = FMath::FRandRange(30.f, 180.f);
 }
 
 // Called every frame
@@ -58,6 +64,21 @@ void AAsteroid::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	SetActorLocation(GetActorLocation() + MoveDirection * Speed * DeltaTime);
+	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	if (!PlayerPawn) return;
+	
+	FVector MoveDirection =
+		(PlayerPawn->GetActorLocation() - GetActorLocation()).GetSafeNormal();
+
+	// Slgith attaction to player ship
+	Velocity += MoveDirection * 10.f * DeltaTime;
+
+	// Moves asteroid
+	SetActorLocation(GetActorLocation() + Velocity * DeltaTime);
+
+	// Tumbling effect
+	AddActorWorldRotation(
+		FQuat(RotationAxis, FMath::DegreesToRadians(RotationSpeed * DeltaTime))
+	);
 }
 

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Engine/StaticMesh.h"
+#include "Components/StaticMeshComponent.h"
 
 #include "Asteroid.generated.h" // Must always be last
 
@@ -34,7 +35,13 @@ public:
 	UStaticMesh* AsteroidMesh;
 
 	// Movement variables
-	FVector MoveDirection;
+	UPROPERTY()
+	FVector Velocity;
+
+	UPROPERTY(EditAnywhere, Category="Asteroid")
 	float Speed = 300.f;
 
+	// Rotation Variables
+	FVector RotationAxis;
+	float RotationSpeed = 60.f;
 };
