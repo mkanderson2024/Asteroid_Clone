@@ -1,0 +1,44 @@
+# Ignore all by default
+*
+
+# Allow folder traversal
+!*/
+
+# -----------------------
+# Project essentials
+# -----------------------
+
+# Project file
+!*.uproject
+
+# Source code
+!Source/
+!Source/**
+
+# -----------------------
+# Content (selective)
+# -----------------------
+
+# MUST allow Content root
+!Content/
+
+!Content/SFX/
+!Content/SFX/**
+
+!Content/ShipMesh/
+!Content/ShipMesh/**
+
+!Content/VFX/
+!Content/VFX/**
+
+# -----------------------
+# Config (recommended for Unreal)
+# -----------------------
+!Config/
+!Config/**
+
+# -----------------------
+# Meta files
+# -----------------------
+!.gitignore
+!README.md
