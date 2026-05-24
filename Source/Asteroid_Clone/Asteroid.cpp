@@ -33,7 +33,7 @@ AAsteroid::AAsteroid()
 	Mesh->SetCollisionProfileName(TEXT("BlockAllDynamic"));
 	Mesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
 
-	Mesh->BodyInstance.SetDOFLock(EDOFMode::XYPlane);
+	Mesh->BodyInstance.bLockZTranslation = true;
 
 	Mesh->OnComponentHit.AddDynamic(this, &AAsteroid::OnHit);
 

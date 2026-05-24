@@ -106,11 +106,22 @@ public:
 		UPROPERTY(EditDefaultsOnly, Category = "VFX")
 		UNiagaraSystem* ThrusterSystem;
 
+		UPROPERTY(EditDefaultsOnly, Category = "VFX")
+		UNiagaraSystem* ExplosionEffect;
+
 		bool bIsThrusting = false;
+
+		// Audio Variables
 
 		UPROPERTY(VisibleAnywhere)
 		UAudioComponent* ThrusterAudio;
 
 		UPROPERTY(EditDefaultsOnly, Category = "Audio")
 		USoundBase* ThrusterSound;
+
+		UPROPERTY(EditDefaultsOnly, Category = "Audio")
+		USoundBase* ExplosionSound;
+
+		UPROPERTY(EditDefaultsOnly, Category = "Audio")
+		USoundBase* ShootSound;
 };

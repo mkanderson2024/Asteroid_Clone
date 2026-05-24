@@ -47,10 +47,11 @@ public:
 	UPROPERTY(EditAnywhere, Category="Spawning")
 	float SpawnDistance = 2500.f;
 
+	// Maximum asteroids count
 	UPROPERTY(EditAnywhere, Category="Spawning")
-	int32 MaxAsteroids = 10;
+	int32 MaxAsteroids = 20;
 
 	UPROPERTY(EditAnywhere, Category="Spawning")
-	int32 MaxAttempts = 10;
+	int32 MaxAttempts = 20;
 
 };

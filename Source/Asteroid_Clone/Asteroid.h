@@ -47,10 +47,10 @@ public:
 
 	// Respawn/Redirect variables
 	UPROPERTY(EditAnywhere, Category="Asteroid|Behavior")
-	float DespawnDistance = 8000.f;
+	float DespawnDistance = 4000.f;
 
 	UPROPERTY(EditAnywhere, Category="Asteroid|Behavior")
-	float ReturnDistance = 5000.f;
+	float ReturnDistance = 1500.f;
 
 	UPROPERTY(EditAnywhere, Category="Asteroid|Behavior")
 	float ReturnForce = 1.5f;

@@ -70,7 +70,7 @@ void AAsteroidSpawner::MaintainAsteroidCount()
 	}
 }
 
-// Attempt to spawn a single asteroid
+// Attempt to spawn asteroids
 AActor* AAsteroidSpawner::SpawnAsteroid_Internal()
 {
 	if (!AsteroidClass)

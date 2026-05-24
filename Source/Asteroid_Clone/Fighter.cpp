@@ -29,6 +29,8 @@
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/PlayerController.h"
 #include "UObject/ConstructorHelpers.h"
+#include "NiagaraFunctionLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 
 
@@ -68,7 +70,7 @@ AFighter::AFighter()
 	
 	SpringArm->SetupAttachment(RootComponent);
 	SpringArm->TargetArmLength = 1500.0f;   							//Distance from ship
-	SpringArm->SetRelativeRotation(FRotator(-70.0f, 0.0f, 0.0f));	//Camera Donward Angle
+	SpringArm->SetRelativeRotation(FRotator(-70.0f, 0.0f, 0.0f));		//Camera Donward Angle
 	SpringArm->bDoCollisionTest = false;
 	SpringArm->bInheritPitch = false;
 	SpringArm->bInheritYaw = false;
@@ -86,7 +88,9 @@ AFighter::AFighter()
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
-	// Load Input Assets
+	// ----- Constructors -----
+
+	// Load Inputs
 	static ConstructorHelpers::FObjectFinder<UInputMappingContext> IMC(
     TEXT("/Game/Input/IMC_Fighter.IMC_Fighter")
 	);
@@ -131,7 +135,9 @@ AFighter::AFighter()
 		ShootAction = Shoot.Object;
 	}
 
-	// Visual Effect
+	// ---- Visual Effects ----
+
+	// Thruster
 	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> ThrusterAsset(
     TEXT("/Game/RocketThrusterExhaustFX/FX/NS_RocketExhaust_Afterburn_Jet.NS_RocketExhaust_Afterburn_Jet")
 	);
@@ -150,7 +156,24 @@ AFighter::AFighter()
 	ThrusterVFX->SetupAttachment(ShipMesh, TEXT("ThrusterSocket"));
 	ThrusterVFX->SetRelativeScale3D(FVector(2.0f));
 
-	// Audio Effect
+	// Explosion
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> ExplosionAsset(
+    TEXT("/Game/VFX/Fighter_Explosion.Fighter_Explosion")
+	);
+
+	if (ExplosionAsset.Succeeded())
+	{
+		ExplosionEffect = ExplosionAsset.Object;
+		UE_LOG(LogTemp, Warning, TEXT("Explosion VFX Loaded Successfully"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("FAILED to load Explosion VFX"));
+	}
+
+	// ---- Audio Effects ----
+
+	// Thruster Audio
 	static ConstructorHelpers::FObjectFinder<USoundBase> ThrusterSoundAsset(
     TEXT("/Game/SFX/WAV_ThrusterSound.WAV_ThrusterSound")
 	);
@@ -163,6 +186,26 @@ AFighter::AFighter()
 	ThrusterAudio->SetupAttachment(ShipMesh, TEXT("ThrusterSocket"));
 	ThrusterAudio->bAutoActivate = false;
 	ThrusterAudio->SetSound(ThrusterSound);
+
+	// Explosion Audio
+	static ConstructorHelpers::FObjectFinder<USoundBase> ExplosionSoundAsset(
+	TEXT("/Game/SFX/ShipExplosionCue.ShipExplosionCue")
+	);
+
+	if (ExplosionSoundAsset.Succeeded())
+	{
+		ExplosionSound = ExplosionSoundAsset.Object;
+	}
+
+	// Shoot Audio
+	static ConstructorHelpers::FObjectFinder<USoundBase> ShootSoundAsset(
+	TEXT("/Game/SFX/FighterShootCue.FighterShootCue")
+	);
+
+	if (ShootSoundAsset.Succeeded())
+	{
+		ShootSound = ShootSoundAsset.Object;
+	}
 }
 
 // Called when the game starts or when spawned
@@ -175,8 +218,6 @@ void AFighter::BeginPlay()
 
 	UE_LOG(LogTemp, Warning, TEXT("Controller = %s"),
 	*GetNameSafe(GetController()));
-	//MovementComponent->SetUpdatedComponent(RootComponent);
-	//MovementComponent->Activate();
 
     UE_LOG(LogTemp, Warning, TEXT("Fighter Pawn Spawned"));
 
@@ -229,7 +270,7 @@ void AFighter::Tick(float DeltaTime)
 	SetActorLocation(NewLocation, true);
 
 	// Applies Movement
-	AddActorWorldOffset(Velocity * DeltaTime, true);
+	//AddActorWorldOffset(Velocity * DeltaTime, true);
 
 	// Applies Drag
 	Velocity -= Velocity * DragStrength * DeltaTime;
@@ -323,7 +364,6 @@ void AFighter::Move(const FInputActionValue& Value)
 
 	bIsThrusting = (FMath::Abs(Axis) > 0.01f);
 
-    // AddMovementInput(GetActorForwardVector(), Axis);
 	if (FMath::Abs(Axis) > 0.01f)
 	{
 		FVector Thrust = GetActorForwardVector() * (Axis * ThrustAcceleration);
@@ -341,12 +381,41 @@ void AFighter::Turn(const FInputActionValue& Value)
 
 void AFighter::Shoot(const FInputActionValue& Value)
 {
+	// Shoot SFX
+	UGameplayStatics::PlaySoundAtLocation(
+		GetWorld(),
+		ShootSound,
+		GetActorLocation()
+	);
     UE_LOG(LogTemp, Warning, TEXT("Pew"));
 }
 
 void AFighter::Die()
 {
+	ThrusterAudio->Stop();
+	DisableInput(nullptr);
+	bIsThrusting = false;
+	Velocity = FVector::ZeroVector;
+	SetActorLocation(GetActorLocation());
+
+	// Explosion SFX
+	UGameplayStatics::PlaySoundAtLocation(
+		GetWorld(),
+		ExplosionSound,
+		GetActorLocation()
+	);
+
     AController* PawnController = GetController();
+	
+	if (ExplosionEffect)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			GetWorld(),
+			ExplosionEffect,
+			GetActorLocation(),
+			GetActorRotation()
+		);
+	}
 
     if (PawnController)
     {
@@ -362,9 +431,7 @@ void AFighter::Die()
 			ThrusterVFX->Deactivate();
 		}
 
-	ThrusterAudio->FadeOut(0.2f, 0.0f);
-
     SetActorHiddenInGame(true);
     SetActorEnableCollision(false);
-    DisableInput(nullptr);
+
 }
