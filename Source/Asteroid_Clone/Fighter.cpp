@@ -171,6 +171,20 @@ AFighter::AFighter()
 		UE_LOG(LogTemp, Error, TEXT("FAILED to load Explosion VFX"));
 	}
 
+	// Muzzle Flash
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> MuzzleFlashAsset(
+	TEXT("/Game/VFX/NS_FighterMuzzleFlash.NS_FighterMuzzleFlash")
+	);
+	if (MuzzleFlashAsset.Succeeded())
+	{
+		MuzzleFlash = MuzzleFlashAsset.Object;
+		UE_LOG(LogTemp, Warning, TEXT("Muzzle Flash VFX Loaded Successfully"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("FAILED to load Muzzle Flash VFX"));
+	}
+
 	// ---- Audio Effects ----
 
 	// Thruster Audio
@@ -387,6 +401,21 @@ void AFighter::Shoot(const FInputActionValue& Value)
 		ShootSound,
 		GetActorLocation()
 	);
+
+	// Shoot VFX
+	UNiagaraFunctionLibrary::SpawnSystemAttached(
+		MuzzleFlash,
+		ShipMesh,
+		TEXT("MuzzleSocket"),
+		FVector::ZeroVector,
+		FRotator::ZeroRotator,
+		EAttachLocation::SnapToTarget,
+		true,
+		true,
+		ENCPoolMethod::None,
+		true
+	)->SetWorldScale3D(FVector(2.0f));
+
     UE_LOG(LogTemp, Warning, TEXT("Pew"));
 }
 

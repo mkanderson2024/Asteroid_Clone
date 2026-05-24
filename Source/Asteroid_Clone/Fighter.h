@@ -100,6 +100,8 @@ public:
 		UPROPERTY(EditDefaultsOnly, Category="Input")
 		UInputAction* ShootAction;
 
+		// Visual Effect Variables
+
 		UPROPERTY(VisibleAnywhere, Category = "VFX")
 		UNiagaraComponent* ThrusterVFX;
 
@@ -110,6 +112,9 @@ public:
 		UNiagaraSystem* ExplosionEffect;
 
 		bool bIsThrusting = false;
+
+		UPROPERTY(EditDefaultsOnly, Category = "VFX")
+		UNiagaraSystem* MuzzleFlash;
 
 		// Audio Variables
 
