@@ -15,6 +15,9 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 
+// Universal
+#include "GameConstants.h"
+
 // Enhanced Input
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -221,17 +224,15 @@ void AFighter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	//Ship Movement using Velocity
-	//FVector NewLocation = GetActorLocation() + (Velocity * DeltaTime);
-	//SetActorLocation(NewLocation, true);
+	FVector NewLocation = GetActorLocation() + (Velocity * DeltaTime);
+	NewLocation.Z = GameConstants::GameplayZ;
+	SetActorLocation(NewLocation, true);
 
 	// Applies Movement
 	AddActorWorldOffset(Velocity * DeltaTime, true);
 
 	// Applies Drag
 	Velocity -= Velocity * DragStrength * DeltaTime;
-
-	// Old Drag System
-	//Velocity *= FMath::Pow(0.98f, DeltaTime * 60.f);
 
 	if (Velocity.SizeSquared() > MaxSpeed * MaxSpeed)
 	{

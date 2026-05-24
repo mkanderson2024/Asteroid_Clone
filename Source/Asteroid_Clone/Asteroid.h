@@ -18,6 +18,7 @@ class ASTEROID_CLONE_API AAsteroid : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AAsteroid();
+	AActor* GetClosestPlayer() const;
 
 protected:
 	// Called when the game starts or when spawned
@@ -39,13 +40,32 @@ public:
 	FVector Velocity;
 
 	UPROPERTY(EditAnywhere, Category="Asteroid")
-	float Speed = 300.f;
+	float MaxSpeed = 300.f;
 
-	// Rotation Variables
+	UPROPERTY()
+	float InitialSpeed = 0.f;
+
+	// Respawn/Redirect variables
+	UPROPERTY(EditAnywhere, Category="Asteroid|Behavior")
+	float DespawnDistance = 8000.f;
+
+	UPROPERTY(EditAnywhere, Category="Asteroid|Behavior")
+	float ReturnDistance = 5000.f;
+
+	UPROPERTY(EditAnywhere, Category="Asteroid|Behavior")
+	float ReturnForce = 1.5f;
+
+	bool IsVisibleToAnyPlayer() const;
+
+	// Rotation variables
 	FVector RotationAxis;
 	float RotationSpeed = 60.f;
 
+	UPROPERTY()
+	float MinSpeed = 150.f;
+
 	UFUNCTION()
+
 	void OnHit(
 		UPrimitiveComponent* HitComp,
 		AActor* OtherActor,
@@ -53,4 +73,7 @@ public:
 		FVector NormalImpulse,
 		const FHitResult& Hit
 	);
+
+	FTimerHandle InitPhysicsHandle;
+	void InitPhysics();
 };

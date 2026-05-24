@@ -6,6 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
 #include "GameFramework/PlayerController.h"
+#include "GameConstants.h"
 
 // Sets default values
 AAsteroidSpawner::AAsteroidSpawner()
@@ -94,6 +95,8 @@ AActor* AAsteroidSpawner::SpawnAsteroid_Internal()
 			continue;
 		}
 
+
+		// Spawn Asteroid
 		FActorSpawnParameters Params;
 		Params.SpawnCollisionHandlingOverride =
 			ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
@@ -125,7 +128,11 @@ FVector AAsteroidSpawner::GetSpawnPoint() const
 	Direction.Z = 0.f;
 	Direction.Normalize();
 
-	return Origin + Direction * SpawnDistance;
+	FVector SpawnPoint = Origin + Direction * SpawnDistance;
+
+	SpawnPoint.Z = GameConstants::GameplayZ;
+
+	return SpawnPoint;
 }
 
 // Check if a position is visible to any player's camera

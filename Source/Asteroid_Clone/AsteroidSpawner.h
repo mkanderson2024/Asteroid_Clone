@@ -27,14 +27,16 @@ protected:
 	FVector GetSpawnPoint() const;
 	bool IsVisibleToAnyPlayer(const FVector& Position) const;
 
+	
+
 	FTimerHandle SpawnTimerHandle;
 
 	UPROPERTY()
 	TArray<TWeakObjectPtr<AActor>> ActiveAsteroids;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	// Tick might need to be deleted.
+	//virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere, Category="Spawning")
 	TSubclassOf<AAsteroid> AsteroidClass;
