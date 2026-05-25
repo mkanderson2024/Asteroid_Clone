@@ -2,6 +2,7 @@
 
 
 #include "Fighter.h"
+#include "Projectile.h"
 
 // Game Mode
 #include "AsteroidsGameMode.h"
@@ -32,10 +33,6 @@
 #include "NiagaraFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
 
-
-
-
-
 // Sets default values
 AFighter::AFighter()
 {
@@ -43,6 +40,9 @@ AFighter::AFighter()
 	Tags.Add("PlayerShip");
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	// Projectile declaration
+	ProjectileClass = AProjectile::StaticClass();
 
 	// Collision Sphere
 	 CollisionSphere =
@@ -220,6 +220,8 @@ AFighter::AFighter()
 	{
 		ShootSound = ShootSoundAsset.Object;
 	}
+
+
 }
 
 // Called when the game starts or when spawned
@@ -415,6 +417,28 @@ void AFighter::Shoot(const FInputActionValue& Value)
 		ENCPoolMethod::None,
 		true
 	)->SetWorldScale3D(FVector(2.0f));
+
+	FVector SpawnLocation =
+		ShipMesh->GetSocketLocation(TEXT("MuzzleSocket"));
+
+	FRotator SpawnRotation = GetActorRotation();
+
+	FActorSpawnParameters Params;
+	Params.Owner = this;
+	Params.Instigator = GetInstigator();
+
+	AProjectile* Projectile =
+		GetWorld()->SpawnActor<AProjectile>(
+			ProjectileClass,
+			SpawnLocation,
+			SpawnRotation,
+			Params
+		);
+
+	if (Projectile)
+	{
+		Projectile->FireInDirection(GetActorForwardVector());
+	}
 
     UE_LOG(LogTemp, Warning, TEXT("Pew"));
 }

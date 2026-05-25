@@ -7,6 +7,9 @@
 #include "Fighter.h"
 #include "GameConstants.h"
 
+#include "NiagaraSystem.h"
+#include "NiagaraFunctionLibrary.h"
+
 class UStaticMesh;
 class UStaticMeshComponent;
 
@@ -49,6 +52,29 @@ AAsteroid::AAsteroid()
 
 	RotationAxis = FVector::ZeroVector;
 	RotationSpeed = 60.f;
+
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> ImpactAsset(
+    TEXT("/Game/VFX/NS_FighterShotImpact.NS_FighterShotImpact")
+	);
+
+	if (ImpactAsset.Succeeded())
+	{
+		ImpactVFX = ImpactAsset.Object;
+		UE_LOG(LogTemp, Warning, TEXT("Impact VFX Loaded Successfully"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("FAILED to load Impact VFX"));
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> ExplosionSoundAsset(
+	TEXT("/Game/SFX/AsteroidExplosion_Cue.AsteroidExplosion_Cue")
+	);
+
+	if (ExplosionSoundAsset.Succeeded())
+	{
+		ExplosionSound = ExplosionSoundAsset.Object;
+	}
 
 }
 
@@ -132,6 +158,16 @@ void AAsteroid::OnHit(
 		// Projectile collision (you'll likely add later)
 		if (OtherActor->ActorHasTag("Projectile"))
 		{
+			UGameplayStatics::PlaySoundAtLocation(
+				GetWorld(),
+				ExplosionSound,
+				GetActorLocation()
+			);
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+				GetWorld(),
+				ImpactVFX,
+				GetActorLocation()
+			);
 			Destroy();
 			return;
 		}

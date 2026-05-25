@@ -6,6 +6,9 @@
 #include "GameFramework/Actor.h"
 #include "Engine/StaticMesh.h"
 #include "Components/StaticMeshComponent.h"
+#include "NiagaraSystem.h"
+#include "Components/AudioComponent.h"
+#include "Sound/SoundBase.h"
 
 #include "Asteroid.generated.h" // Must always be last
 
@@ -54,6 +57,12 @@ public:
 
 	UPROPERTY(EditAnywhere, Category="Asteroid|Behavior")
 	float ReturnForce = 1.5f;
+
+	UPROPERTY(EditDefaultsOnly, Category="VFX")
+	UNiagaraSystem* ImpactVFX;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Audio")
+	USoundBase* ExplosionSound;
 
 	bool IsVisibleToAnyPlayer() const;
 

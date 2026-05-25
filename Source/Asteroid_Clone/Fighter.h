@@ -22,6 +22,7 @@ class UInputMappingContext;
 class UInputAction;
 class UNiagaraComponent;
 class UNiagaraSystem;
+class AProjectile;
 
 
 UCLASS()
@@ -129,4 +130,8 @@ public:
 
 		UPROPERTY(EditDefaultsOnly, Category = "Audio")
 		USoundBase* ShootSound;
+
+		// Projectile
+		UPROPERTY(EditDefaultsOnly, Category = "Combat")
+		TSubclassOf<AProjectile> ProjectileClass;
 };
